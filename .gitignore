@@ -1,0 +1,11 @@
+/venv
+/.venv
+/.meltano
+.env
+*.duckdb
+*.duckdb.wal
+__pycache__/
+.DS_Store
+transform/target/
+transform/logs/
+transform/dbt_packages/

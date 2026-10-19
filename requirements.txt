@@ -1,0 +1,8 @@
+# Meltano itself is installed with: pipx install meltano
+# These are only for the analytics script and the dashboard.
+duckdb>=1.0
+pandas>=2.0
+numpy>=1.26
+scikit-learn>=1.4
+streamlit>=1.35
+plotly>=5.20

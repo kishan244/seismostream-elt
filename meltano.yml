@@ -1,0 +1,61 @@
+default_environment: dev
+project_id: 019edeb9-3e39-75d4-8cca-afe315d6b50c
+jobs:
+- name: seismo_pipeline
+  tasks:
+  - tap-usgs target-duckdb dbt-duckdb:run dbt-duckdb:snapshot
+  - tap-usgs target-alert
+schedules:
+- name: hourly_seismo
+  job: seismo_pipeline
+  interval: '@hourly'
+environments:
+- name: dev
+- name: staging
+- name: prod
+plugins:
+  extractors:
+  - name: tap-smoke-test
+    variant: meltano
+    pip_url: git+https://github.com/meltano/tap-smoke-test.git
+  - name: tap-usgs
+    namespace: tap_usgs
+    pip_url: -e ${MELTANO_PROJECT_ROOT}/extract/tap-usgs
+    executable: tap-usgs
+    capabilities:
+    - catalog
+    - state
+    - discover
+    settings:
+    - name: start_date
+    - name: min_magnitude
+      kind: decimal
+    config:
+      min_magnitude: 4.5
+  loaders:
+  - name: target-duckdb
+    variant: meltanolabs
+    pip_url: git+https://github.com/MeltanoLabs/target-duckdb.git
+    config:
+      filepath: warehouse.duckdb
+      default_target_schema: raw
+  - name: target-alert
+    namespace: target_alert
+    pip_url: -e ${MELTANO_PROJECT_ROOT}/load/target-alert
+    executable: target-alert
+    settings:
+    - name: min_alert_magnitude
+      kind: decimal
+    - name: alerts_file
+    - name: webhook_url
+      kind: password
+      sensitive: true
+    config:
+      min_alert_magnitude: 6.0
+      alerts_file: output/alerts.log
+  utilities:
+  - name: dbt-duckdb
+    variant: jwills
+    pip_url: dbt-core dbt-duckdb meltano-dbt-ext~=0.5.0
+    config:
+      path: ${MELTANO_PROJECT_ROOT}/warehouse.duckdb
