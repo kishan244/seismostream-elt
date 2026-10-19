@@ -1,0 +1,20 @@
+name: SeismoStream CI
+
+on: [push, pull_request]
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Meltano
+        run: pipx install meltano
+      - name: Install plugins
+        run: meltano install
+      - name: Run pipeline (extract → load → transform)
+        run: meltano run tap-usgs target-duckdb dbt-duckdb:run
+      - name: Run data-quality tests
+        run: meltano invoke dbt-duckdb:test
