@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: stg_earthquakes
+    description: "Cleaned, typed earthquake events with derived magnitude class and energy."
+    columns:
+      - name: id
+        tests: [unique, not_null]
+      - name: occurred_at
+        tests: [not_null]
+      - name: magnitude
+        tests: [not_null]
+      - name: magnitude_class
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['micro','minor','light','moderate','strong','major','great']

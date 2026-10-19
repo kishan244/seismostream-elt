@@ -1,0 +1,7 @@
+snapshots:
+  - name: snap_earthquake_revisions
+    relation: ref('stg_earthquakes')
+    config:
+      strategy: check
+      unique_key: id
+      check_cols: ['magnitude', 'status', 'significance']
